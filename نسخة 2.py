@@ -475,15 +475,7 @@ with tab_monitor:
                 </div>
             """, unsafe_allow_html=True)
             
-             # ... (داخل الـ with tab_monitor:)
-    # تأكد أن row2_4 انتهى هنا
-    with row2_4: 
-        st.markdown(f"""
-            <div style="background-color:{noise_bg}; padding:12px; border-radius:10px; border-left: 5px solid {noise_display_color}; text-align:center;">
-                <p style="color:#8a99ad; margin:0; font-size:12px; font-weight:bold;">📈 مستوى تذبذب التيار</p>
-                <h2 style="color:{noise_display_color}; margin:10px 0 0 0; font-size:20px;">{noise_text_arabic} <span class="{noise_class}">{noise_arrow}</span></h2>
-            </div>
-        """, unsafe_allow_html=True)
+            
 
     # هنا الحل: اجعل هذه الأسطر محاذية لبداية سطر "row1_1" (أي تحت الـ with مباشرة)
    # 1. إغلاق أي بلوكات سابقة (تأكد أن سطر الأعمدة يبدأ في بداية السطر)
