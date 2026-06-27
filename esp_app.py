@@ -1,4 +1,45 @@
 import streamlit as st
+from datetime import datetime, timedelta
+
+# دالة للتحقق من الكود
+def check_activation():
+    # كود التنشيط (يمكنك تغييره لاحقاً)
+    SECRET_CODE = "MAS-2026" 
+    
+    # التحقق من الحالة في الجلسة (Session State)
+    if 'activated' not in st.session_state:
+        st.session_state.activated = False
+        st.session_state.expiry_date = None
+
+    if not st.session_state.activated:
+        st.title("🔐 تفعيل نظام MAS-Guard")
+        code = st.text_input("أدخل كود التفعيل:", type="password")
+        
+        if st.button("تفعيل"):
+            if code == SECRET_CODE:
+                st.session_state.activated = True
+                # ضبط تاريخ الانتهاء بعد شهر من الآن
+                st.session_state.expiry_date = datetime.now() + timedelta(days=30)
+                st.success("تم التفعيل بنجاح! يعمل النظام لمدة 30 يوماً.")
+                st.rerun()
+            else:
+                st.error("كود غير صحيح!")
+        st.stop() # إيقاف البرنامج إذا لم يكن مفعلاً
+    
+    # التحقق من التاريخ
+    if st.session_state.activated:
+        if datetime.now() > st.session_state.expiry_date:
+            st.warning("⚠️ انتهت فترة التنشيط، يرجى إدخال كود جديد.")
+            st.session_state.activated = False
+            st.rerun()
+
+# استدعاء الدالة
+check_activation()
+
+# --- بقية كود تطبيقك يبدأ من هنا ---
+st.title("مرحباً بك في نظام MAS-Guard")
+
+import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
