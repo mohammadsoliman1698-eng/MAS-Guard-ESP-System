@@ -1,14 +1,17 @@
 import streamlit as st
+
+# كود إخفاء عناصر Streamlit
 hide_streamlit_style = """
             <style>
-            #MainMenu {visibility: hidden;}
-            footer {visibility: hidden;}
-            header {visibility: hidden;}
-            .stApp {top: -50px;} 
+            #MainMenu {visibility: hidden !important;}
+            footer {visibility: hidden !important;}
+            header {visibility: hidden !important;}
             </style>
             """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+
 from datetime import datetime, timedelta
+# ... باقي الكود الخاص بك
 
 # دالة للتحقق من الكود
 def check_activation():
