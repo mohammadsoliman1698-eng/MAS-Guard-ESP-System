@@ -1,14 +1,13 @@
 import streamlit as st
-import streamlit as st
-
-# كود إخفاء الزر والقائمة
 hide_streamlit_style = """
             <style>
             #MainMenu {visibility: hidden;}
             footer {visibility: hidden;}
             header {visibility: hidden;}
+            .stApp {top: -50px;} 
             </style>
             """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 from datetime import datetime, timedelta
 
