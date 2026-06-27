@@ -1,4 +1,45 @@
 import streamlit as st
+from datetime import datetime, timedelta
+
+# دالة للتحقق من الكود
+def check_activation():
+    # كود التنشيط (يمكنك تغييره لاحقاً)
+    SECRET_CODE = "MAS-2026" 
+    
+    # التحقق من الحالة في الجلسة (Session State)
+    if 'activated' not in st.session_state:
+        st.session_state.activated = False
+        st.session_state.expiry_date = None
+
+    if not st.session_state.activated:
+        st.title("🔐 تفعيل نظام MAS-Guard")
+        code = st.text_input("أدخل كود التفعيل:", type="password")
+        
+        if st.button("تفعيل"):
+            if code == SECRET_CODE:
+                st.session_state.activated = True
+                # ضبط تاريخ الانتهاء بعد شهر من الآن
+                st.session_state.expiry_date = datetime.now() + timedelta(days=30)
+                st.success("تم التفعيل بنجاح! يعمل النظام لمدة 30 يوماً.")
+                st.rerun()
+            else:
+                st.error("كود غير صحيح!")
+        st.stop() # إيقاف البرنامج إذا لم يكن مفعلاً
+    
+    # التحقق من التاريخ
+    if st.session_state.activated:
+        if datetime.now() > st.session_state.expiry_date:
+            st.warning("⚠️ انتهت فترة التنشيط، يرجى إدخال كود جديد.")
+            st.session_state.activated = False
+            st.rerun()
+
+# استدعاء الدالة
+check_activation()
+
+# --- بقية كود تطبيقك يبدأ من هنا ---
+st.title("مرحباً بك في نظام MAS-Guard")
+
+import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
@@ -335,13 +376,14 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-tab_monitor, tab_production, tab_logs, tab_schematic, tab_reports, tab_pump_curve = st.tabs([
+tab_monitor, tab_production, tab_logs, tab_schematic, tab_reports, tab_pump_curve, tab_about = st.tabs([
     "🎛️ شاشة المراقبة", 
     "🛢️ الإنتاج اليومي",
-    "📋 سجل الإنذارات (Event Log)",
+    "📋 سجل الإنذارات",
     "📐 المخطط الهيكلي",
     "📄 التقارير",
-    "⚙️ منحنى الأداء"
+    "⚙️ منحنى الأداء",
+    "ℹ️ حول النظام"
 ])
 
 # ------------------------------------------
@@ -606,5 +648,24 @@ KEY PARAMETERS RECORDED:
                 st.rerun()
         else:
             st.success("🟢 سجل الأحداث فارغ، النظام يعمل ضمن النطاق الآمن.")
+            # ------------------------------------------
+# التبويبة السابعة: حول النظام (حقوق الملكية)
+# ------------------------------------------
+with tab_about:
+    st.subheader("ℹ️ معلومات النظام وحقوق الملكية")
+    st.markdown("""
+        <div style="background-color: #131722; padding: 25px; border-radius: 10px; border: 1px solid #ffc107;">
+            <h3 style="color: #ffc107;">MAS-Guard ESP System | Version 1.0</h3>
+            <p style="color: #e0e0e0;">هذا البرنامج هو نتاج عمل هندسي وفكري متكامل، تم تطويره بالكامل بواسطة <strong>المهندس محمد عجيل سليمان (MAS)</strong>.</p>
+            <hr style="border-color: #333;">
+            <p style="color: #b2b9c4;"><strong>إشعار قانوني:</strong></p>
+            <ul style="color: #b2b9c4;">
+                <li>كافة الحقوق محفوظة للمطور.</li>
+                <li>يمنع منعاً باتاً نسخ، توزيع، أو تعديل الكود المصدري لهذا البرنامج دون الحصول على إذن خطي صريح.</li>
+                <li>هذا النظام مخصص للاستخدام المهني في إدارة الحقول الذكية وفقاً للترخيص الممنوح.</li>
+            </ul>
+            <p style="color: #ffc107; font-weight: bold;">حقوق الملكية الفكرية محمية قانونياً © 2026</p>
+        </div>
+    """, unsafe_allow_html=True)
         
             
