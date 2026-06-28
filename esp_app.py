@@ -6,10 +6,15 @@ hide_streamlit_style = """
             #MainMenu {visibility: hidden !important;}
             footer {visibility: hidden !important;}
             header {visibility: hidden !important;}
+            /* إخفاء الشعار في الأسفل */
+            .stApp [data-testid="stToolbar"] {visibility: hidden !important;}
+            .stApp [data-testid="stDecoration"] {visibility: hidden !important;}
+            .stApp [data-testid="stStatusWidget"] {visibility: hidden !important;}
+            /* إخفاء علامة "Hosted with Streamlit" */
+            #root > div:nth-child(1) > div > div > div > div > section > div {padding-top: 0rem;}
             </style>
             """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-
 from datetime import datetime, timedelta
 # ... باقي الكود الخاص بك
 
