@@ -279,43 +279,53 @@ else:
         pump_eff = st.slider("كفاءة المضخة الهيدروليكية (Efficiency %)", 10.0, 100.0, 61.8, 0.1)
         noise_level = st.selectbox("مستوى تذبذب التيار", ["طبيعي (Normal)", "متوسط (Moderate)", "عالي جداً (Critical Fluctuation)"])
     data_loaded = True
-    # ==========================================
-# 🎛️ قسم التحكم بالحدود الدنيا والعليا (السلايدرات في الشريط الجانبي)
+   # ==========================================
+# قسم التحكم بالحدود الدنيا والعليا لجميع المؤشرات
 # ==========================================
 with st.sidebar.expander("⚙️ تخصيص حدود الإنذار للمؤشرات", expanded=True):
     st.markdown("حدد النطاق الآمن (الأدنى والأعلى) لكل مؤشر:")
     
-    # 1. تردد المضخة
-    freq_min, freq_max = st.slider("تردد المضخة (VSD Frequency - Hz)", 30.0, 80.0, (45.0, 60.0), 0.5)
+    # 1. تردد المِفخة
+    st.markdown("---")
+    st.text("1. تردد المِفخة (VSD Frequency - Hz)")
+    freq_min = st.slider("الأدنى - تردد", 30.0, 60.0, 45.0, key="freq_min")
+    freq_max = st.slider("الأعلى - تردد", 60.0, 80.0, 75.0, key="freq_max")
     
-    # 2. ضغط سحب المضخة
-    pip_min, pip_max = st.slider("ضغط سحب المضخة (PIP - psi)", 0.0, 2500.0, (600.0, 1000.0), 10.0)
+    # 2. ضغط سحب المضخة (PIP - psi)
+    st.markdown("---")
+    st.text("2. ضغط سحب المضخة (PIP - psi)")
+    pip_min = st.slider("الأدنى - سحب", 0.0, 1000.0, 200.0, key="pip_min")
+    pip_max = st.slider("الأعلى - سحب", 1000.0, 2500.0, 1800.0, key="pip_max")
     
-    # 3. ضغط طرد المضخة
-    pdp_min, pdp_max = st.slider("ضغط طرد المضخة (PDP - psi)", 500.0, 5000.0, (2200.0, 2800.0), 10.0)
+    # 3. ضغط طرد المضخة (PDP - psi)
+    st.markdown("---")
+    st.text("3. ضغط طرد المضخة (PDP - psi)")
+    pdp_min = st.slider("الأدنى - طرد", 500.0, 2500.0, 1000.0, key="pdp_min")
+    pdp_max = st.slider("الأعلى - طرد", 2500.0, 5000.0, 4000.0, key="pdp_max")
     
-    # 4. تيار المحرك الأساسي
-    amps_min, amps_max = st.slider("تيار المحرك الأساسي (Motor Amps)", 10.0, 120.0, (40.0, 55.0), 0.5)
+    # 4. تيار المحرك الأساسي (Motor Amps)
+    st.markdown("---")
+    st.text("4. تيار المحرك الأساسي (Motor Amps)")
+    motor_amps_min = st.slider("الأدنى - التيار", 10.0, 50.0, 20.0, key="motor_amps_min")
+    motor_amps_max = st.slider("الأعلى - التيار", 50.0, 120.0, 90.0, key="motor_amps_max")
     
-    # 5. درجة حرارة المحرك السفلية
-    temp_min, temp_max = st.slider("حرارة المحرك السفلية (Motor Temp - °F)", 100.0, 350.0, (150.0, 220.0), 1.0)
+    # 5. درجة حرارة المحرك السفلية (Motor Temp - °F)
+    st.markdown("---")
+    st.text("5. حرارة المحرك السفلية (Motor Temp - °F)")
+    motor_temp_min = st.slider("الأدنى - الحرارة", 50.0, 150.0, 100.0, key="motor_temp_min")
+    motor_temp_max = st.slider("الأعلى - الحرارة", 150.0, 250.0, 220.0, key="motor_temp_max")
     
-    # 6. ضغط رأس البئر السطحي
-    wh_min, wh_max = st.slider("ضغط رأس البئر السطحي (P_wh - psi)", 50.0, 1000.0, (200.0, 400.0), 5.0)
+    # 6. ضغط رأس البئر السطحي (P_wh - psi)
+    st.markdown("---")
+    st.text("6. ضغط رأس البئر السطحي (P_wh - psi)")
+    pwh_min = st.slider("الأدنى - رأس البئر", 50.0, 500.0, 200.0, key="pwh_min")
+    pwh_max = st.slider("الأعلى - رأس البئر", 500.0, 2000.0, 1500.0, key="pwh_max")
     
-    # 7. كفاءة المضخة الهيدروليكية
-    eff_min, eff_max = st.slider("كفاءة المضخة الهيدروليكية (Efficiency %)", 10.0, 100.0, (55.0, 80.0), 1.0)
-    
-    # ربط المتغيرات بالمتغيرات المعيارية المستخدمة في فحص النظام
-    norm_freq = (freq_min, freq_max)
-    norm_pip = (pip_min, pip_max)
-    norm_pdp = (pdp_min, pdp_max)
-    norm_amps = (amps_min, amps_max)
-    norm_temp = (temp_min, temp_max)
-    norm_wh = (wh_min, wh_max)
-    norm_eff = (eff_min, eff_max)
-    norm_dp = (pdp_min - pip_max, pdp_max - pip_min) # حساب تقريبي لفرق الضغط بناءً على الحدود الجديدة
-
+    # 7. كفاءة المضخة الهيدروليكية (Efficiency %)
+    st.markdown("---")
+    st.text("7. كفاءة المضخة الهيدروليكية (Efficiency %)")
+    eff_min = st.slider("الأدنى - الكفاءة", 10.0, 50.0, 30.0, key="eff_min")
+    eff_max = st.slider("الأعلى - الكفاءة", 50.0, 100.0, 85.0, key="eff_max")
 # ==========================================
 # 6. محرك التشخيص الهندسي (مُصحح وموحد)
 # ==========================================
