@@ -280,33 +280,54 @@ else:
         noise_level = st.selectbox("مستوى تذبذب التيار", ["طبيعي (Normal)", "متوسط (Moderate)", "عالي جداً (Critical Fluctuation)"])
     data_loaded = True
     # ==========================================
-# 🎛️ قسم التحكم بالحدود الدنيا والعليا (السلايدرات في الشريط الجانبي)
+# 🎛️ قسم التحكم بالحدود الدنيا والعليا (في الشريط الجانبي)
 # ==========================================
 with st.sidebar.expander("⚙️ تخصيص حدود الإنذار للمؤشرات", expanded=True):
     st.markdown("حدد النطاق الآمن (الأدنى والأعلى) لكل مؤشر:")
     
     # 1. تردد المضخة
-    freq_min, freq_max = st.slider("تردد المضخة (VSD Frequency - Hz)", 30.0, 80.0, (45.0, 60.0), 0.5)
+    st.markdown("---")
+    st.text("1. تردد المضخة (VSD Frequency - Hz)")
+    freq_min = st.number_input("الحد الأدنى - تردد", min_value=30.0, max_value=80.0, value=45.0, step=0.5, key="freq_min")
+    freq_max = st.number_input("الحد الأقصى - تردد", min_value=30.0, max_value=80.0, value=60.0, step=0.5, key="freq_max")
     
     # 2. ضغط سحب المضخة
-    pip_min, pip_max = st.slider("ضغط سحب المضخة (PIP - psi)", 0.0, 2500.0, (600.0, 1000.0), 10.0)
+    st.markdown("---")
+    st.text("2. ضغط سحب المضخة (PIP - psi)")
+    pip_min = st.number_input("الحد الأدنى - سحب", min_value=0.0, max_value=2500.0, value=600.0, step=10.0, key="pip_min")
+    pip_max = st.number_input("الحد الأقصى - سحب", min_value=0.0, max_value=2500.0, value=1000.0, step=10.0, key="pip_max")
     
     # 3. ضغط طرد المضخة
-    pdp_min, pdp_max = st.slider("ضغط طرد المضخة (PDP - psi)", 500.0, 5000.0, (2200.0, 2800.0), 10.0)
+    st.markdown("---")
+    st.text("3. ضغط طرد المضخة (PDP - psi)")
+    pdp_min = st.number_input("الحد الأدنى - طرد", min_value=500.0, max_value=5000.0, value=2200.0, step=10.0, key="pdp_min")
+    pdp_max = st.number_input("الحد الأقصى - طرد", min_value=500.0, max_value=5000.0, value=2800.0, step=10.0, key="pdp_max")
     
     # 4. تيار المحرك الأساسي
-    amps_min, amps_max = st.slider("تيار المحرك الأساسي (Motor Amps)", 10.0, 120.0, (40.0, 55.0), 0.5)
+    st.markdown("---")
+    st.text("4. تيار المحرك الأساسي (Motor Amps)")
+    amps_min = st.number_input("الحد الأدنى - التيار", min_value=10.0, max_value=120.0, value=40.0, step=0.5, key="amps_min")
+    amps_max = st.number_input("الحد الأقصى - التيار", min_value=10.0, max_value=120.0, value=55.0, step=0.5, key="amps_max")
     
     # 5. درجة حرارة المحرك السفلية
-    temp_min, temp_max = st.slider("حرارة المحرك السفلية (Motor Temp - °F)", 100.0, 350.0, (150.0, 220.0), 1.0)
+    st.markdown("---")
+    st.text("5. حرارة المحرك السفلية (Motor Temp - °F)")
+    temp_min = st.number_input("الحد الأدنى - الحرارة", min_value=100.0, max_value=350.0, value=150.0, step=1.0, key="temp_min")
+    temp_max = st.number_input("الحد الأقصى - الحرارة", min_value=100.0, max_value=350.0, value=220.0, step=1.0, key="temp_max")
     
     # 6. ضغط رأس البئر السطحي
-    wh_min, wh_max = st.slider("ضغط رأس البئر السطحي (P_wh - psi)", 50.0, 1000.0, (200.0, 400.0), 5.0)
+    st.markdown("---")
+    st.text("6. ضغط رأس البئر السطحي (P_wh - psi)")
+    wh_min = st.number_input("الحد الأدنى - رأس البئر", min_value=50.0, max_value=1000.0, value=200.0, step=5.0, key="wh_min")
+    wh_max = st.number_input("الحد الأقصى - رأس البئر", min_value=50.0, max_value=1000.0, value=400.0, step=5.0, key="wh_max")
     
     # 7. كفاءة المضخة الهيدروليكية
-    eff_min, eff_max = st.slider("كفاءة المضخة الهيدروليكية (Efficiency %)", 10.0, 100.0, (55.0, 80.0), 1.0)
+    st.markdown("---")
+    st.text("7. كفاءة المضخة الهيدروليكية (Efficiency %)")
+    eff_min = st.number_input("الحد الأدنى - الكفاءة", min_value=10.0, max_value=100.0, value=55.0, step=1.0, key="eff_min")
+    eff_max = st.number_input("الحد الأقصى - الكفاءة", min_value=10.0, max_value=100.0, value=80.0, step=1.0, key="eff_max")
     
-    # ربط المتغيرات بالمتغيرات المعيارية المستخدمة في فحص النظام
+    # ربط المتغيرات بالمتغيرات المعيارية المستخدمة في فحص النظام (نفس الأسماء التي يعتمد عليها كودك لتستجيب المؤشرات)
     norm_freq = (freq_min, freq_max)
     norm_pip = (pip_min, pip_max)
     norm_pdp = (pdp_min, pdp_max)
@@ -315,7 +336,6 @@ with st.sidebar.expander("⚙️ تخصيص حدود الإنذار للمؤشر
     norm_wh = (wh_min, wh_max)
     norm_eff = (eff_min, eff_max)
     norm_dp = (pdp_min - pip_max, pdp_max - pip_min) # حساب تقريبي لفرق الضغط بناءً على الحدود الجديدة
-
 # ==========================================
 # 6. محرك التشخيص الهندسي (مُصحح وموحد)
 # ==========================================
