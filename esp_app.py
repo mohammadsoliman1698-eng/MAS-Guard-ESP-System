@@ -279,6 +279,42 @@ else:
         pump_eff = st.slider("كفاءة المضخة الهيدروليكية (Efficiency %)", 10.0, 100.0, 61.8, 0.1)
         noise_level = st.selectbox("مستوى تذبذب التيار", ["طبيعي (Normal)", "متوسط (Moderate)", "عالي جداً (Critical Fluctuation)"])
     data_loaded = True
+    # ==========================================
+# 🎛️ قسم التحكم بالحدود الدنيا والعليا (السلايدرات في الشريط الجانبي)
+# ==========================================
+with st.sidebar.expander("⚙️ تخصيص حدود الإنذار للمؤشرات", expanded=True):
+    st.markdown("حدد النطاق الآمن (الأدنى والأعلى) لكل مؤشر:")
+    
+    # 1. تردد المضخة
+    freq_min, freq_max = st.slider("تردد المضخة (VSD Frequency - Hz)", 30.0, 80.0, (45.0, 60.0), 0.5)
+    
+    # 2. ضغط سحب المضخة
+    pip_min, pip_max = st.slider("ضغط سحب المضخة (PIP - psi)", 0.0, 2500.0, (600.0, 1000.0), 10.0)
+    
+    # 3. ضغط طرد المضخة
+    pdp_min, pdp_max = st.slider("ضغط طرد المضخة (PDP - psi)", 500.0, 5000.0, (2200.0, 2800.0), 10.0)
+    
+    # 4. تيار المحرك الأساسي
+    amps_min, amps_max = st.slider("تيار المحرك الأساسي (Motor Amps)", 10.0, 120.0, (40.0, 55.0), 0.5)
+    
+    # 5. درجة حرارة المحرك السفلية
+    temp_min, temp_max = st.slider("حرارة المحرك السفلية (Motor Temp - °F)", 100.0, 350.0, (150.0, 220.0), 1.0)
+    
+    # 6. ضغط رأس البئر السطحي
+    wh_min, wh_max = st.slider("ضغط رأس البئر السطحي (P_wh - psi)", 50.0, 1000.0, (200.0, 400.0), 5.0)
+    
+    # 7. كفاءة المضخة الهيدروليكية
+    eff_min, eff_max = st.slider("كفاءة المضخة الهيدروليكية (Efficiency %)", 10.0, 100.0, (55.0, 80.0), 1.0)
+    
+    # ربط المتغيرات بالمتغيرات المعيارية المستخدمة في فحص النظام
+    norm_freq = (freq_min, freq_max)
+    norm_pip = (pip_min, pip_max)
+    norm_pdp = (pdp_min, pdp_max)
+    norm_amps = (amps_min, amps_max)
+    norm_temp = (temp_min, temp_max)
+    norm_wh = (wh_min, wh_max)
+    norm_eff = (eff_min, eff_max)
+    norm_dp = (pdp_min - pip_max, pdp_max - pip_min) # حساب تقريبي لفرق الضغط بناءً على الحدود الجديدة
 
 # ==========================================
 # 6. محرك التشخيص الهندسي (مُصحح وموحد)

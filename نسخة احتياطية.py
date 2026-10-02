@@ -1,4 +1,62 @@
 import streamlit as st
+
+# كود إخفاء عناصر Streamlit
+hide_streamlit_style = """
+            <style>
+            #MainMenu {visibility: hidden !important;}
+            footer {visibility: hidden !important;}
+            header {visibility: hidden !important;}
+            /* إخفاء الشعار في الأسفل */
+            .stApp [data-testid="stToolbar"] {visibility: hidden !important;}
+            .stApp [data-testid="stDecoration"] {visibility: hidden !important;}
+            .stApp [data-testid="stStatusWidget"] {visibility: hidden !important;}
+            /* إخفاء علامة "Hosted with Streamlit" */
+            #root > div:nth-child(1) > div > div > div > div > section > div {padding-top: 0rem;}
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True)
+from datetime import datetime, timedelta
+# ... باقي الكود الخاص بك
+
+# دالة للتحقق من الكود
+def check_activation():
+    # كود التنشيط (يمكنك تغييره لاحقاً)
+    SECRET_CODE = "MAS-2026" 
+    
+    # التحقق من الحالة في الجلسة (Session State)
+    if 'activated' not in st.session_state:
+        st.session_state.activated = False
+        st.session_state.expiry_date = None
+
+    if not st.session_state.activated:
+        st.title("🔐 تفعيل نظام MAS-Guard")
+        code = st.text_input("أدخل كود التفعيل:", type="password")
+        
+        if st.button("تفعيل"):
+            if code == SECRET_CODE:
+                st.session_state.activated = True
+                # ضبط تاريخ الانتهاء بعد شهر من الآن
+                st.session_state.expiry_date = datetime.now() + timedelta(days=30)
+                st.success("تم التفعيل بنجاح! يعمل النظام لمدة 30 يوماً.")
+                st.rerun()
+            else:
+                st.error("كود غير صحيح!")
+        st.stop() # إيقاف البرنامج إذا لم يكن مفعلاً
+    
+    # التحقق من التاريخ
+    if st.session_state.activated:
+        if datetime.now() > st.session_state.expiry_date:
+            st.warning("⚠️ انتهت فترة التنشيط، يرجى إدخال كود جديد.")
+            st.session_state.activated = False
+            st.rerun()
+
+# استدعاء الدالة
+check_activation()
+
+# --- بقية كود تطبيقك يبدأ من هنا ---
+st.title("مرحباً بك في نظام MAS-Guard")
+
+import streamlit as st
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go
@@ -21,11 +79,42 @@ st.set_page_config(page_title="MAS-Guard ESP | System", page_icon="⚡", layout=
 
 # عرض اسم التطبيق بهوية ENG:Mohammad Ageel
 st.markdown("""
-    <div style='background-color: #1e2430; padding: 20px; border-radius: 10px; border-left: 10px solid #ffc107;'>
-        <h1 style='text-align: center; color: #ffffff;'>⚡ MAS-Guard ESP System</h1>
-        <p style='text-align: center; color: #aaaaaa;'>نظام المراقبة والتحكم الذكي | Developed by: Eng: Mohammed Ajeel Suleiman (MAS)</p>
+    <style>
+        .mas-header {
+            background-color: #0e1117;
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid #333;
+            border-top: 5px solid #ffc107;
+            margin-bottom: 20px;
+        }
+        .brand-title {
+            font-size: 26px;
+            font-weight: 800;
+            color: #ffffff;
+            margin-bottom: 5px;
+        }
+        .brand-desc {
+            font-size: 14px;
+            color: #a0a0a0;
+            line-height: 1.5;
+            max-width: 800px;
+        }
+        .signature {
+            font-size: 12px;
+            color: #ffc107;
+            font-weight: bold;
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+    </style>
+    <div class="mas-header">
+        <div class="brand-title">⚡ MAS-GUARD | ESP SYSTEM</div>
+        <div class="brand-desc">
+            منصة تحليل بيانات المضخات الغاطسة الكهربائية (ESP) المتقدمة. توفر المراقبة الفورية، التشخيص الذكي للأعطال، وتحسين الإنتاج باستخدام معادلات تقييم التدفق (Vogel IPR) لضمان استمرارية التشغيل الآمن.
+        </div>
+        <div class="signature">© 2026 ARCHITECTED BY ENG. MOHAMMED AJEEL SULEIMAN (MAS)</div>
     </div>
-    <br>
 """, unsafe_allow_html=True)
 
 # إضافة تأثيرات المظهر المتقدمة والوميض عبر CSS
@@ -49,10 +138,6 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
-
-st.title("🚀 ESP Smart-Guard & Optimization Enterprise Pro")
-st.caption("المنصة الهندسيّة المتكاملة لإدارة الحقول الذكية والتنبؤ بالأعطال والربط الفوري عبر Telegram")
-st.markdown("---")
 
 # ==========================================
 # 2. دالة تشغيل صفارة الإنذار (تمت تصفية أي مكتبات مفقودة)
@@ -194,6 +279,42 @@ else:
         pump_eff = st.slider("كفاءة المضخة الهيدروليكية (Efficiency %)", 10.0, 100.0, 61.8, 0.1)
         noise_level = st.selectbox("مستوى تذبذب التيار", ["طبيعي (Normal)", "متوسط (Moderate)", "عالي جداً (Critical Fluctuation)"])
     data_loaded = True
+    # ==========================================
+# 🎛️ قسم التحكم بالحدود الدنيا والعليا (السلايدرات في الشريط الجانبي)
+# ==========================================
+with st.sidebar.expander("⚙️ تخصيص حدود الإنذار للمؤشرات", expanded=True):
+    st.markdown("حدد النطاق الآمن (الأدنى والأعلى) لكل مؤشر:")
+    
+    # 1. تردد المضخة
+    freq_min, freq_max = st.slider("تردد المضخة (VSD Frequency - Hz)", 30.0, 80.0, (45.0, 60.0), 0.5)
+    
+    # 2. ضغط سحب المضخة
+    pip_min, pip_max = st.slider("ضغط سحب المضخة (PIP - psi)", 0.0, 2500.0, (600.0, 1000.0), 10.0)
+    
+    # 3. ضغط طرد المضخة
+    pdp_min, pdp_max = st.slider("ضغط طرد المضخة (PDP - psi)", 500.0, 5000.0, (2200.0, 2800.0), 10.0)
+    
+    # 4. تيار المحرك الأساسي
+    amps_min, amps_max = st.slider("تيار المحرك الأساسي (Motor Amps)", 10.0, 120.0, (40.0, 55.0), 0.5)
+    
+    # 5. درجة حرارة المحرك السفلية
+    temp_min, temp_max = st.slider("حرارة المحرك السفلية (Motor Temp - °F)", 100.0, 350.0, (150.0, 220.0), 1.0)
+    
+    # 6. ضغط رأس البئر السطحي
+    wh_min, wh_max = st.slider("ضغط رأس البئر السطحي (P_wh - psi)", 50.0, 1000.0, (200.0, 400.0), 5.0)
+    
+    # 7. كفاءة المضخة الهيدروليكية
+    eff_min, eff_max = st.slider("كفاءة المضخة الهيدروليكية (Efficiency %)", 10.0, 100.0, (55.0, 80.0), 1.0)
+    
+    # ربط المتغيرات بالمتغيرات المعيارية المستخدمة في فحص النظام
+    norm_freq = (freq_min, freq_max)
+    norm_pip = (pip_min, pip_max)
+    norm_pdp = (pdp_min, pdp_max)
+    norm_amps = (amps_min, amps_max)
+    norm_temp = (temp_min, temp_max)
+    norm_wh = (wh_min, wh_max)
+    norm_eff = (eff_min, eff_max)
+    norm_dp = (pdp_min - pip_max, pdp_max - pip_min) # حساب تقريبي لفرق الضغط بناءً على الحدود الجديدة
 
 # ==========================================
 # 6. محرك التشخيص الهندسي (مُصحح وموحد)
@@ -285,144 +406,160 @@ if data_loaded:
     noise_level_map = {"عالي جداً (Critical Fluctuation)": ("rgba(220, 53, 69, 0.2)", "#dc3545", "▲", "blink-arrow", "عالي جداً ⚠️"), "متوسط (Moderate)": ("rgba(255, 193, 7, 0.15)", "#ffc107", "▲", "blink-arrow", "متوسط ⚡")}
     noise_bg, noise_display_color, noise_arrow, noise_class, noise_text_arabic = noise_level_map.get(noise_level, ("#1e2430", "#28a745", "➔", "normal-arrow", "طبيعي ✅"))
     # ==========================================
-    # 7. التبويبات الـ 5 المحدثة والمعزولة كلياً
-    # ==========================================
-    # 7. التبويبات المحدثة (إضافة تبويبة سجل الأحداث)
-    tab_monitor, tab_production, tab_logs, tab_schematic, tab_reports, tab_pump_curve = st.tabs([
-        "🎛️ شاشة المراقبة", 
-        "🛢️ الإنتاج اليومي",
-        "📋 سجل الإنذارات (Event Log)",
-        "📐 المخطط الهيكلي",
-        "📄 التقارير",
-        "⚙️ منحنى الأداء"
-    ])
+# 7. التبويبات الـ 5 المحدثة والمعزولة كلياً
+# ==========================================
+st.markdown("""
+    <style>
+        .stTabs [data-baseweb="tab-list"] { gap: 5px; display: flex; justify-content: center; }
+        .stTabs [data-baseweb="tab"] {
+            background-color: #000000; 
+            color: #ffffff;
+            border-radius: 8px;
+            padding: 15px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            border: 1px solid #333;
+            transition: all 0.3s ease;
+        }
+        .stTabs [aria-selected="true"] {
+            background-color: #ffc107 !important; 
+            color: #000000 !important;
+            border: 1px solid #ffc107 !important;
+        }
+    </style>
+""", unsafe_allow_html=True)
 
-    # ------------------------------------------
-    # التبويبة الأولى: شاشة المراقبة الفورية الحية
-    # ------------------------------------------
-    with tab_monitor:
-        div_class = "ambulance-active" if is_critical else ""
-        div_bg = f"background-color:{status_color};" if not is_critical else ""
+tab_monitor, tab_production, tab_logs, tab_schematic, tab_reports, tab_pump_curve, tab_about = st.tabs([
+    "🎛️ شاشة المراقبة", 
+    "🛢️ الإنتاج اليومي",
+    "📋 سجل الإنذارات",
+    "📐 المخطط الهيكلي",
+    "📄 التقارير",
+    "⚙️ منحنى الأداء",
+    "ℹ️ حول النظام"
+])
+
+# ------------------------------------------
+# التبويبة الأولى: شاشة المراقبة الفورية الحية
+# ------------------------------------------
+with tab_monitor:
+    div_class = "ambulance-active" if is_critical else ""
+    div_bg = f"background-color:{status_color};" if not is_critical else ""
+    
+    st.markdown(f"""
+        <div class="{div_class}" style="{div_bg} padding:15px; border-radius:8px; text-align:center; margin-bottom:20px;">
+            <h2 style="color:white; margin:0; font-size:22px;">⚡ نظام الطوارئ والتحليل الذكي المتعدد لـ {selected_well} ⚡</h2>
+            <p style="color:white; margin:5px 0 0 0; font-size:16px;">المشاكل النشطة حالياً: {diagnostic_status}</p>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    if not active_recommendations:
+        st.success("🟢 حالة التشغيل الآمن: جميع القراءات الحالية متطابقة تماماً مع النطاق التصميمي الآمن للبئر. لا توجد إجراءات تصحيحية مطلوبة.")
+    else:
+        st.markdown(f"### 🚨 تم رصد عدد ({len(active_recommendations)}) مشاكل متزامنة تتطلب المتابعة الفورية:")
         
-        st.markdown(f"""
-            <div class="{div_class}" style="{div_bg} padding:15px; border-radius:8px; text-align:center; margin-bottom:20px;">
-                <h2 style="color:white; margin:0; font-size:22px;">⚡ نظام الطوارئ والتحليل الذكي المتعدد لـ {selected_well} ⚡</h2>
-                <p style="color:white; margin:5px 0 0 0; font-size:16px;">المشاكل النشطة حالياً: {diagnostic_status}</p>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        if not active_recommendations:
-            st.success("🟢 حالة التشغيل الآمن: جميع القراءات الحالية متطابقة تماماً مع النطاق التصميمي الآمن للبئر. لا توجد إجراءات تصحيحية مطلوبة.")
-        else:
-            st.markdown(f"### 🚨 تم رصد عدد ({len(active_recommendations)}) مشاكل متزامنة تتطلب المتابعة الفورية:")
+        for idx, rec in enumerate(active_recommendations, 1):
+            border_color = "#dc3545" if is_critical else "#ffc107"
             
-            for idx, rec in enumerate(active_recommendations, 1):
-                border_color = "#dc3545" if is_critical else "#ffc107"
-                
-                st.markdown(f"""
-                <div style="background-color: #131722; padding: 20px; border-radius: 8px; border-right: 6px solid {border_color}; margin-bottom: 20px; direction: rtl; text-align: right; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
-                    <div style="font-size: 18px; font-weight: bold; color: #e0e0e0; margin-bottom: 12px; border-bottom: 1px solid #2a2f3a; padding-bottom: 6px;">
-                        ⚠️ مشكلة رقم ({idx}): {rec['title']}
-                    </div>
-                    <div style="font-size: 15px; color: #b2b9c4; margin-bottom: 8px;">
-                        <strong style="color: #ff9800;">🔍 التشخيص الهندسي:</strong> {rec['diagnosis']}
-                    </div>
-                    <div style="font-size: 15px; color: #b2b9c4;">
-                        <strong style="color: #00e676;">🛠️ الإجراء الفوري المعتمد (SOP):</strong> {rec['action']}
-                    </div>
+            st.markdown(f"""
+            <div style="background-color: #131722; padding: 20px; border-radius: 8px; border-right: 6px solid {border_color}; margin-bottom: 20px; direction: rtl; text-align: right; box-shadow: 0 4px 6px rgba(0,0,0,0.3);">
+                <div style="font-size: 18px; font-weight: bold; color: #e0e0e0; margin-bottom: 12px; border-bottom: 1px solid #2a2f3a; padding-bottom: 6px;">
+                    ⚠️ مشكلة رقم ({idx}): {rec['title']}
                 </div>
-                """, unsafe_allow_html=True)
-
-        row1_1, row1_2, row1_3, row1_4, row1_5 = st.columns(5)
-        with row1_1: 
-            st.markdown(f"""
-            <div style="background-color:{dp_bg}; padding:12px; border-radius:10px; border-left: 5px solid {dp_color}; text-align:center;">
-                <p style="color:#8a99ad; margin:0; font-size:12px; font-weight:bold;">معدل رفع الضغط (ΔP)</p>
-                <h2 style="color:{dp_color}; margin:10px 0 0 0; font-size:22px;">{delta_p:,.0f} <span style="font-size:12px;">psi</span> <span class="{dp_class}">{dp_arrow}</span></h2>
-            </div>
-            """, unsafe_allow_html=True)
-            
-        with row1_2: 
-            st.markdown(f"""
-            <div style="background-color:{pip_bg}; padding:12px; border-radius:10px; border-left: 5px solid {pip_color}; text-align:center;">
-                <p style="color:#8a99ad; margin:0; font-size:12px; font-weight:bold;">ضغط سحب المضخة (PIP)</p>
-                <h2 style="color:{pip_color}; margin:10px 0 0 0; font-size:22px;">{pip:,.0f} <span style="font-size:12px;">psi</span> <span class="{pip_class}">{pip_arrow}</span></h2>
-            </div>
-            """, unsafe_allow_html=True)
-            
-        with row1_3: 
-            st.markdown(f"""
-            <div style="background-color:{pdp_bg}; padding:12px; border-radius:10px; border-left: 5px solid {pdp_color}; text-align:center;">
-                <p style="color:#8a99ad; margin:0; font-size:12px; font-weight:bold;">ضغط طرد المضخة (PDP)</p>
-                <h2 style="color:{pdp_color}; margin:10px 0 0 0; font-size:22px;">{pdp:,.0f} <span style="font-size:12px;">psi</span> <span class="{pdp_class}">{pdp_arrow}</span></h2>
-            </div>
-            """, unsafe_allow_html=True)
-            
-        with row1_4: 
-            st.markdown(f"""
-            <div style="background-color:{amps_bg}; padding:12px; border-radius:10px; border-left: 5px solid {amps_color}; text-align:center;">
-                <p style="color:#8a99ad; margin:0; font-size:12px; font-weight:bold;">تيار المحرك (Amps)</p>
-                <h2 style="color:{amps_color}; margin:10px 0 0 0; font-size:22px;">{current_base:,.1f} <span style="font-size:12px;">A</span> <span class="{amps_class}">{amps_arrow}</span></h2>
-            </div>
-            """, unsafe_allow_html=True)
-            
-        with row1_5: 
-            st.markdown(f"""
-            <div style="background-color:{freq_bg}; padding:12px; border-radius:10px; border-left: 5px solid {freq_color}; text-align:center;">
-                <p style="color:#8a99ad; margin:0; font-size:12px; font-weight:bold;">تردد مغير السرعة (VSD)</p>
-                <h2 style="color:{freq_color}; margin:10px 0 0 0; font-size:22px;">{frequency:,.1f} <span style="font-size:12px;">Hz</span> <span class="{freq_class}">{freq_arrow}</span></h2>
+                <div style="font-size: 15px; color: #b2b9c4; margin-bottom: 8px;">
+                    <strong style="color: #ff9800;">🔍 التشخيص الهندسي:</strong> {rec['diagnosis']}
+                </div>
+                <div style="font-size: 15px; color: #b2b9c4;">
+                    <strong style="color: #00e676;">🛠️ الإجراء الفوري المعتمد (SOP):</strong> {rec['action']}
+                </div>
             </div>
             """, unsafe_allow_html=True)
 
-        st.markdown("<div style='margin:10px 0;'></div>", unsafe_allow_html=True)
+    row1_1, row1_2, row1_3, row1_4, row1_5 = st.columns(5)
+    with row1_1: 
+        st.markdown(f"""<div style="background-color:{dp_bg}; padding:12px; border-radius:10px; border-left: 5px solid {dp_color}; text-align:center;">
+            <p style="color:#8a99ad; margin:0; font-size:12px; font-weight:bold;">معدل رفع الضغط (ΔP)</p>
+            <h2 style="color:{dp_color}; margin:10px 0 0 0; font-size:22px;">{delta_p:,.0f} <span style="font-size:12px;">psi</span> <span class="{dp_class}">{dp_arrow}</span></h2>
+        </div>""", unsafe_allow_html=True)
+    with row1_2: 
+        st.markdown(f"""<div style="background-color:{pip_bg}; padding:12px; border-radius:10px; border-left: 5px solid {pip_color}; text-align:center;">
+            <p style="color:#8a99ad; margin:0; font-size:12px; font-weight:bold;">ضغط سحب المضخة (PIP)</p>
+            <h2 style="color:{pip_color}; margin:10px 0 0 0; font-size:22px;">{pip:,.0f} <span style="font-size:12px;">psi</span> <span class="{pip_class}">{pip_arrow}</span></h2>
+        </div>""", unsafe_allow_html=True)
+    with row1_3: 
+        st.markdown(f"""<div style="background-color:{pdp_bg}; padding:12px; border-radius:10px; border-left: 5px solid {pdp_color}; text-align:center;">
+            <p style="color:#8a99ad; margin:0; font-size:12px; font-weight:bold;">ضغط طرد المضخة (PDP)</p>
+            <h2 style="color:{pdp_color}; margin:10px 0 0 0; font-size:22px;">{pdp:,.0f} <span style="font-size:12px;">psi</span> <span class="{pdp_class}">{pdp_arrow}</span></h2>
+        </div>""", unsafe_allow_html=True)
+    with row1_4: 
+        st.markdown(f"""<div style="background-color:{amps_bg}; padding:12px; border-radius:10px; border-left: 5px solid {amps_color}; text-align:center;">
+            <p style="color:#8a99ad; margin:0; font-size:12px; font-weight:bold;">تيار المحرك (Amps)</p>
+            <h2 style="color:{amps_color}; margin:10px 0 0 0; font-size:22px;">{current_base:,.1f} <span style="font-size:12px;">A</span> <span class="{amps_class}">{amps_arrow}</span></h2>
+        </div>""", unsafe_allow_html=True)
+    with row1_5: 
+        st.markdown(f"""<div style="background-color:{freq_bg}; padding:12px; border-radius:10px; border-left: 5px solid {freq_color}; text-align:center;">
+            <p style="color:#8a99ad; margin:0; font-size:12px; font-weight:bold;">تردد مغير السرعة (VSD)</p>
+            <h2 style="color:{freq_color}; margin:10px 0 0 0; font-size:22px;">{frequency:,.1f} <span style="font-size:12px;">Hz</span> <span class="{freq_class}">{freq_arrow}</span></h2>
+        </div>""", unsafe_allow_html=True)
 
-        row2_1, row2_2, row2_3, row2_4 = st.columns(4)
-        with row2_1: 
-            st.markdown(f"""
-            <div style="background-color:{temp_bg}; padding:12px; border-radius:10px; border-left: 5px solid {temp_color}; text-align:center;">
-                <p style="color:#8a99ad; margin:0; font-size:12px; font-weight:bold;">🌡️ حرارة المحرك السفلية</p>
-                <h2 style="color:{temp_color}; margin:10px 0 0 0; font-size:22px;">{motor_temp:,.1f} <span style="font-size:12px;">°F</span> <span class="{temp_class}">{temp_arrow}</span></h2>
-            </div>
-            """, unsafe_allow_html=True)
-            
-        with row2_2: 
-            st.markdown(f"""
-            <div style="background-color:{wh_bg}; padding:12px; border-radius:10px; border-left: 5px solid {wh_color}; text-align:center;">
-                <p style="color:#8a99ad; margin:0; font-size:12px; font-weight:bold;">🛑 ضغط رأس البئر السطحي</p>
-                <h2 style="color:{wh_color}; margin:10px 0 0 0; font-size:22px;">{wellhead_press:,.0f} <span style="font-size:12px;">psi</span> <span class="{wh_class}">{wh_arrow}</span></h2>
-            </div>
-            """, unsafe_allow_html=True)
-            
-        with row2_3: 
-            st.markdown(f"""
-            <div style="background-color:{eff_bg}; padding:12px; border-radius:10px; border-left: 5px solid {eff_color}; text-align:center;">
-                <p style="color:#8a99ad; margin:0; font-size:12px; font-weight:bold;">⚙️ كفاءة المضخة الهيدروليكية</p>
-                <h2 style="color:{eff_color}; margin:10px 0 0 0; font-size:22px;">{pump_eff:,.1f} <span style="font-size:12px;">%</span> <span class="{eff_class}">{eff_arrow}</span></h2>
-            </div>
-            """, unsafe_allow_html=True)
-            
-        with row2_4: 
-            st.markdown(f"""
-            <div style="background-color:{noise_bg}; padding:12px; border-radius:10px; border-left: 5px solid {noise_display_color}; text-align:center;">
-                <p style="color:#8a99ad; margin:0; font-size:12px; font-weight:bold;">📈 مستوى تذبذب التيار</p>
-                <h2 style="color:{noise_display_color}; margin:10px 0 0 0; font-size:20px;">{noise_text_arabic} <span class="{noise_class}">{noise_arrow}</span></h2>
-            </div>
-            """, unsafe_allow_html=True)
+    st.markdown("<div style='margin:10px 0;'></div>", unsafe_allow_html=True)
 
-        st.markdown("---")
+    row2_1, row2_2, row2_3, row2_4 = st.columns(4)
+    with row2_1: 
+        st.markdown(f"""<div style="background-color:{temp_bg}; padding:12px; border-radius:10px; border-left: 5px solid {temp_color}; text-align:center;">
+            <p style="color:#8a99ad; margin:0; font-size:12px; font-weight:bold;">🌡️ حرارة المحرك السفلية</p>
+            <h2 style="color:{temp_color}; margin:10px 0 0 0; font-size:22px;">{motor_temp:,.1f} <span style="font-size:12px;">°F</span> <span class="{temp_class}">{temp_arrow}</span></h2>
+        </div>""", unsafe_allow_html=True)
+    with row2_2: 
+        st.markdown(f"""<div style="background-color:{wh_bg}; padding:12px; border-radius:10px; border-left: 5px solid {wh_color}; text-align:center;">
+            <p style="color:#8a99ad; margin:0; font-size:12px; font-weight:bold;">🛑 ضغط رأس البئر السطحي</p>
+            <h2 style="color:{wh_color}; margin:10px 0 0 0; font-size:22px;">{wellhead_press:,.0f} <span style="font-size:12px;">psi</span> <span class="{wh_class}">{wh_arrow}</span></h2>
+        </div>""", unsafe_allow_html=True)
+    with row2_3: 
+        st.markdown(f"""<div style="background-color:{eff_bg}; padding:12px; border-radius:10px; border-left: 5px solid {eff_color}; text-align:center;">
+            <p style="color:#8a99ad; margin:0; font-size:12px; font-weight:bold;">⚙️ كفاءة المضخة الهيدروليكية</p>
+            <h2 style="color:{eff_color}; margin:10px 0 0 0; font-size:22px;">{pump_eff:,.1f} <span style="font-size:12px;">%</span> <span class="{eff_class}">{eff_arrow}</span></h2>
+        </div>""", unsafe_allow_html=True)
+    with row2_4: 
+            st.markdown(f"""
+                <div style="background-color:{noise_bg}; padding:12px; border-radius:10px; border-left: 5px solid {noise_display_color}; text-align:center;">
+                    <p style="color:#8a99ad; margin:0; font-size:12px; font-weight:bold;">📈 مستوى تذبذب التيار</p>
+                    <h2 style="color:{noise_display_color}; margin:10px 0 0 0; font-size:20px;">{noise_text_arabic} <span class="{noise_class}">{noise_arrow}</span></h2>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            
+
+    # هنا الحل: اجعل هذه الأسطر محاذية لبداية سطر "row1_1" (أي تحت الـ with مباشرة)
+   # 1. إغلاق أي بلوكات سابقة (تأكد أن سطر الأعمدة يبدأ في بداية السطر)
+    col_m1, col_m2 = st.columns([2, 1])
+    
+    # 2. إذا كنت تريد وضع معلومات داخل الأعمدة، ضعها هنا، وإلا احذف الأعمدة تماماً
+    with col_m1:
+        st.write("بيانات جانبية أو ملاحظات")
         
-        col_m1, col_m2 = st.columns([2, 1])
-        with col_m1:
-            st.subheader("📈 المنحنى اللحظي المستمر لقراءات تيار السحب والضغوط")
-            np.random.seed(42)
-            time_chunks = [datetime.now() - timedelta(minutes=i*5) for i in range(30, 0, -1)]
-            current_noise = np.random.normal(0, 0.4, 30)
-            fig = go.Figure()
-            fig.add_trace(go.Scatter(x=time_chunks, y=current_base + current_noise, name="تيار المحرك (Amps)", line=dict(color="#1f77b4", width=2.5)))
-            fig.add_trace(go.Scatter(x=time_chunks, y=np.random.normal(pip, 5, 30), name="ضغط السحب (PIP - psi)", line=dict(color="#ff7f0e", width=2.5), yaxis="y2"))
-            fig.update_layout(template="plotly_dark", yaxis=dict(title="تيار المحرك (Amps)"), yaxis2=dict(title="ضغط السحب (psi)", overlaying="y", side="right"), margin=dict(l=20, r=20, t=10, b=30))
-            st.plotly_chart(fig, use_container_width=True)
-        
+    # 3. هنا الخط الفاصل (يجب أن يكون محاذياً لسطر مع تعريف الـ with أو الأعمدة)
+    st.markdown("---")
+    
+    # 4. كود الرسم البياني (بعرض كامل) - يجب أن يكون بمحاذاة سطر الأعمدة تماماً
+    st.subheader("📈 المنحنى اللحظي المستمر لقراءات تيار السحب والضغوط")
+    
+    np.random.seed(42)
+    time_chunks = [datetime.now() - timedelta(minutes=i*5) for i in range(30, 0, -1)]
+    current_noise = np.random.normal(0, 0.4, 30)
+    
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=time_chunks, y=current_base + current_noise, name="تيار المحرك (Amps)", line=dict(color="#1f77b4", width=3)))
+    fig.add_trace(go.Scatter(x=time_chunks, y=np.random.normal(pip, 5, 30), name="ضغط السحب (PIP - psi)", line=dict(color="#ff7f0e", width=3), yaxis="y2"))
+    
+    fig.update_layout(
+        template="plotly_dark",
+        height=500,
+        yaxis=dict(title="تيار المحرك (Amps)"),
+        yaxis2=dict(title="ضغط السحب (psi)", overlaying="y", side="right"),
+        margin=dict(l=40, r=40, t=20, b=40)
+    )
+    st.plotly_chart(fig, use_container_width=True)
 
     # ------------------------------------------
     # التبويبة الثانية: توقعات الإنتاج اليومي (Vogel IPR)
@@ -556,4 +693,24 @@ KEY PARAMETERS RECORDED:
                 st.rerun()
         else:
             st.success("🟢 سجل الأحداث فارغ، النظام يعمل ضمن النطاق الآمن.")
+            # ------------------------------------------
+# التبويبة السابعة: حول النظام (حقوق الملكية)
+# ------------------------------------------
+with tab_about:
+    st.subheader("ℹ️ معلومات النظام وحقوق الملكية")
+    st.markdown("""
+        <div style="background-color: #131722; padding: 25px; border-radius: 10px; border: 1px solid #ffc107;">
+            <h3 style="color: #ffc107;">MAS-Guard ESP System | Version 1.0</h3>
+            <p style="color: #e0e0e0;">هذا البرنامج هو نتاج عمل هندسي وفكري متكامل، تم تطويره بالكامل بواسطة <strong>المهندس محمد عجيل سليمان (MAS)</strong>.</p>
+            <hr style="border-color: #333;">
+            <p style="color: #b2b9c4;"><strong>إشعار قانوني:</strong></p>
+            <ul style="color: #b2b9c4;">
+                <li>كافة الحقوق محفوظة للمطور.</li>
+                <li>يمنع منعاً باتاً نسخ، توزيع، أو تعديل الكود المصدري لهذا البرنامج دون الحصول على إذن خطي صريح.</li>
+                <li>هذا النظام مخصص للاستخدام المهني في إدارة الحقول الذكية وفقاً للترخيص الممنوح.</li>
+            </ul>
+            <p style="color: #ffc107; font-weight: bold;">حقوق الملكية الفكرية محمية قانونياً © 2026</p>
+        </div>
+    """, unsafe_allow_html=True)
         
+            
